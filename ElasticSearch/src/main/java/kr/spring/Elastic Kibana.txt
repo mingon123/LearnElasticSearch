@@ -1,0 +1,613 @@
+GET _search
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+PUT movie_kibana_execute/_doc/1
+{
+  "message":"helloworld"
+}
+
+GET movie_kibana_execute/_search
+{
+  "query":{
+    "match_all": {}
+  }
+}
+
+#인덱스 생성
+PUT /movie
+{
+  "settings": {
+    "number_of_shards": 3,
+    "number_of_replicas": 2
+  },
+  "mappings": {
+    "properties": {
+      "movieCd" : {"type" : "integer"},
+      "movieNm" : {"type" : "text"},
+      "movieNmEn" : {"type" : "text"},
+      "prdtYear" : {"type" : "integer"},
+      "openDt" : {"type" : "date"},
+      "typeNm" : {"type" : "keyword"},
+      "prdtStatNm" : {"type" : "keyword"},
+      "nationAlt" : {"type" : "keyword"},
+      "genreAlt" : {"type" : "keyword"},
+      "repNationNm" : {"type" : "keyword"},
+      "repGenreNm" : {"type" : "keyword"}
+    }
+  }
+}
+
+#데이터 저장
+POST /movie/_doc/1 
+{
+  "movieCd" : 1,
+  "movieNm" : "살아남은 아이",
+  "movieNmEn" : "Last Child",
+  "prdtYear" : "2017",
+  "openDt" : "2017-10-20",
+  "typeNm" : "장편",
+  "prdtStatNm" : "기타",
+  "nationAlt" : "한국",
+  "genreAlt" : "드라마, 가족",
+  "repNationNm" : "한국",
+  "repGenreNm" : "드라마"
+}
+
+#검색
+GET /movie/_doc/1
+
+#들여쓰기처리
+GET /movie/_doc/1?pretty=true
+
+GET /movie/_search?q=장편
+
+POST /movie/_search?q=typeNm:장편
+
+#term:하나의 검색 단어
+POST movie/_search
+{
+  "query": {
+    "term":{"typeNm": "장편"} 
+  }
+}
+
+#행 삭제
+DELETE /movie/_doc/1
+
+#인덱스 삭제
+DELETE /movie
+
+#확인(검색)
+GET /movie/_doc/1
+
+#데이터 추가 등
+POST /movie/_doc/2
+{
+  "movieCd" : 2,
+  "movieNm" : "럭키",
+  "movieNmEn" : "Luck-Key",
+  "prdtYear" : "2016",
+  "openDt" : "2016-10-13",
+  "typeNm" : "장편",
+  "prdtStatNm" : "기타",
+  "nationAlt" : "한국",
+  "genreAlt" : "코미디",
+  "repNationNm" : "한국",
+  "repGenreNm" : "코미디"
+}
+POST /movie/_doc/3
+{
+  "movieCd" : 3,
+  "movieNm" : "극한직업",
+  "movieNmEn" : "Extreme Job",
+  "prdtYear" : "2019",
+  "openDt" : "2019-01-23",
+  "typeNm" : "장편",
+  "prdtStatNm" : "기타",
+  "nationAlt" : "한국",
+  "genreAlt" : "코미디",
+  "repNationNm" : "한국",
+  "repGenreNm" : "코미디"
+}
+
+#데이터 확인
+POST /movie/_search
+{
+  "query": {
+    "term":{"genreAlt":"코미디"}
+  }
+}
+
+#검색
+PUT movie_search
+{
+  "settings": {
+    "number_of_shards": 5,
+    "number_of_replicas": 1
+  },
+  "mappings": {
+    "properties": {
+      "movieCd":{
+        "type":"keyword"
+      },
+      "movieNm":{
+        "type":"text",
+        "analyzer": "standard"
+      },
+      "movieNmEn":{
+        "type":"text",
+        "analyzer": "standard"
+      },
+      "prdtYear":{
+        "type":"integer"
+      },
+      "openDt":{
+        "type":"keyword"
+      },
+      "typeNm":{
+        "type":"keyword"
+      },
+      "prdtStatNm":{
+        "type":"keyword"
+      },
+      "nationAlt":{
+        "type":"keyword"
+      },
+      "genreAlt":{
+        "type":"keyword"
+      },
+      "repNationNm":{
+        "type":"keyword"
+      },
+      "companies":{
+        "properties": {
+          "companyCd":{
+            "type":"keyword"
+          },
+          "companyNm":{
+            "type":"keyword"
+          }
+        }
+      },
+      "directors":{
+        "properties": {
+          "peopleNm":{
+            "type":"keyword"
+          }
+        }
+      }
+    }
+  }
+}
+
+POST _analyze
+{
+  "analyzer": "standard",
+  "text":"우리나라가 좋은 나라, 대한민국 화이팅"
+}
+
+
+#문서ID 자동 생성
+POST movie_dynamic/_doc
+{
+  "movieCd":"20173732",
+  "movieNm":"살아남은 아이",
+  "movieNmEn":"Last Child",
+  "typeNm":"장편"
+}
+
+#문서ID 지정
+PUT movie_dynamic/_doc/1
+{
+  "nationAlt":"한국"
+}
+
+#ID가 존재하더라도 create로 강제하여 id가 존재하면 에러 발생
+POST movie_dynamic/_doc/1?op_type=create
+{
+  "movieCd":"20173732",
+  "movieNm":"살아남은 아이",
+  "movieNmEn":"Last Child",
+  "typeNm":"장편"
+}
+
+#인덱스 생성
+PUT movie_dynamic2
+{
+  "mappings": {
+    "properties": {
+      "movieCd":{
+        "type":"text"
+      },
+      "movieNm":{
+        "type":"text"
+      },
+      "movieNmEn":{
+        "type":"text"
+      }
+    }
+  }
+}
+
+#ID가 1인 문서를 추가
+PUT movie_dynamic2/_doc/1
+{
+  "movieCd":"20173732",
+  "movieNm":"살아남은 아이",
+  "movieNmEn":"Last Child"
+}
+
+#GET API를 이용해서 문서 조회
+GET movie_dynamic2/_doc/1
+
+#DELETE API를 이용해서 문서를 삭제
+DELETE movie_dynamic2/_doc/1
+
+#인덱스 전체 삭제
+DELETE movie_dynamic2
+
+#문서 등록
+PUT movie_dynamic2/_doc/1
+{
+  "counter":1000,
+  "movieNmEn":"Last Child"
+}
+
+#Update API를 이용해 해당 영화의 관객 수를 1만큼 증가
+POST movie_dynamic2/_update/1
+{
+  "script": {
+    "source": "ctx._source.counter += params.count",
+    "lang":"painless",
+    "params": {
+      "count":1
+    }
+  }
+}
+
+#결과 조회
+GET movie_dynamic2/_doc/1
+
+#Bulk API를 이용하면 한 번의 API 호출로 다수의 문서를 색인하거나 삭제할 수 있다
+POST _bulk
+{"index":{"_index":"movie_dynamic3","_id":"1" }}
+{"title":"살아남은 아이"}
+{"index":{"_index":"movie_dynamic3","_id":"2"}}
+{"title":"해리포터와 비밀의 방"}
+{"index":{"_index":"movie_dynamic3","_id":"3"}}
+{"title":"어벤져스"}
+
+#등록한 데이터 읽기
+GET /movie_dynamic3/_search
+
+#Reindex API는 한 인덱스에서 다른 인덱스로 문서를 복사. movie_dynamic 인덱스의 문서를 movie_dynamic_new 인덱스로 복사
+POST /_reindex
+{
+  "source": {
+    "index": "movie_dynamic2"
+  },
+  "dest":{
+    "index": "movie_dynamic_new"
+  }
+}
+
+#생성된 데이터 읽기
+GET /movie_dynamic_new/_doc/1
+
+#특정 조회 결과와 일치하는 문서만 복사
+POST /_reindex
+{
+  "source": {
+    "index": "movie_dynamic3",
+    "query": {
+      "term": {
+        "title.keyword": "어벤져스"
+      }
+    }
+  },
+  "dest": {
+    "index": "movie_dynamic_new"
+  }
+}
+
+#생성된 데이터 읽기
+GET /movie_dynamic_new/_search
+
+#검색을 위한 데이터 등록
+POST _bulk
+{"index":{"_index":"movie_search","_id":"1" }}
+{"movieCd" : 1,"movieNm" : "명량","movieNmEn" : "Roaring Currents","prdtYear" : "2014","openDt" : "2014-07-30","typeNm" : "장편","prdtStatNm" : "기타","nationAlt" : "한국","genreAlt" : "액션","repNationNm" : "한국","repGenreNm" : "액션"}
+{"index":{"_index":"movie_search","_id":"2" }}
+{"movieCd" : 2,"movieNm" : "극한직업","movieNmEn" : "Extreme Job","prdtYear" : "2019","openDt" : "2019-01-23","typeNm" : "장편","prdtStatNm" : "기타","nationAlt" : "한국","genreAlt" : "코미디","repNationNm" : "한국","repGenreNm" : "코미디"}
+{"index":{"_index":"movie_search","_id":"3" }}
+{"movieCd" : 3,"movieNm" : "신과 함께-죄와 벌","movieNmEn" : "Along With the Gods: The Two Worlds","prdtYear" : "2017","openDt" : "2017-12-20","typeNm" : "장편","prdtStatNm" : "기타","nationAlt" : "한국","genreAlt" : "판타지","repNationNm" : "한국","repGenreNm" : "판타지"}
+{"index":{"_index":"movie_search","_id":"4" }}
+{"movieCd" : 4,"movieNm" : "국제시장","movieNmEn" : "Ode to My Father","prdtYear" : "2014","openDt" : "2014-12-17","typeNm" : "장편","prdtStatNm" : "기타","nationAlt" : "한국","genreAlt" : "드라마","repNationNm" : "한국","repGenreNm" : "드라마"}
+{"index":{"_index":"movie_search","_id":"5" }}
+{"movieCd" : 5,"movieNm" : "어벤져스: 엔드게임","movieNmEn" : "Avengers: Endgame","prdtYear" : "2019","openDt" : "2019-04-24","typeNm" : "장편","prdtStatNm" : "기타","nationAlt" : "미국","genreAlt" : "SF,액션","repNationNm" : "미국","repGenreNm" : "SF"}
+{"index":{"_index":"movie_search","_id":"6" }}
+{"movieCd" : 6,"movieNm" : "겨울왕국 2","movieNmEn" : "Frozen 2","prdtYear" : "2019","openDt" : "2019-11-21","typeNm" : "장편","prdtStatNm" : "기타","nationAlt" : "미국","genreAlt" : "애니메이션","repNationNm" : "미국","repGenreNm" : "애니메이션"}
+{"index":{"_index":"movie_search","_id":"7" }}
+{"movieCd" : 7,"movieNm" : "베테랑","movieNmEn" : "Veteran","prdtYear" : "2015","openDt" : "2015-08-05","typeNm" : "장편","prdtStatNm" : "기타","nationAlt" : "한국","genreAlt" : "액션","repNationNm" : "한국","repGenreNm" : "액션"}
+{"index":{"_index":"movie_search","_id":"8" }}
+{"movieCd" : 8,"movieNm" : "아바타","movieNmEn" : "Avatar","prdtYear" : "2009","openDt" : "2009-12-07","typeNm" : "장편","prdtStatNm" : "기타","nationAlt" : "미국","genreAlt" : "SF","repNationNm" : "미국","repGenreNm" : "SF"}
+{"index":{"_index":"movie_search","_id":"9" }}
+{"movieCd" : 9,"movieNm" : "도둑들","movieNmEn" : "The Thieves","prdtYear" : "2012","openDt" : "2012-07-25","typeNm" : "장편","prdtStatNm" : "기타","nationAlt" : "한국","genreAlt" : "범죄","repNationNm" : "한국","repGenreNm" : "범죄"}
+{"index":{"_index":"movie_search","_id":"10" }}
+{"movieCd" : 10,"movieNm" : "신과 함께-인과 연","movieNmEn" : "Along with the Gods: The Last 49 Days","prdtYear" : "2018","openDt" : "2018-08-01","typeNm" : "장편","prdtStatNm" : "기타","nationAlt" : "한국","genreAlt" : "판타지","repNationNm" : "한국","repGenreNm" : "판타지"}
+{"index":{"_index":"movie_search","_id":"11" }}
+{"movieCd" : 11,"movieNm" : "인간의 본질","movieNmEn" : "The Silent Child","prdtYear" : "2017","openDt" : "2017-08-01","typeNm" : "단편","prdtStatNm" : "기타","nationAlt" : "한국","genreAlt" : "드라마","repNationNm" : "한국","repGenreNm" : "드라마"}
+
+#검색
+GET movie_search/_search?q=prdtYear:2019
+
+#Request Body 검색
+POST movie_search/_search
+{
+  "query":{
+    "term":{
+      "prdtYear": "2019"
+    }
+  }
+}
+
+#쿼리 컨텍스트
+POST movie_search/_search
+{
+  "query": {
+    "match":{
+      "movieNm":"극한직업"
+    }
+  }
+}
+
+#필터 컨텍스트
+POST movie_search/_search
+{
+  "query":{
+    "bool":{
+      "must":[
+        {
+          "match_all": {}
+        }
+      ],
+      "filter": {
+        "term":{
+          "repGenreNm": "코미디"
+        }
+      }
+    }
+  }
+}
+
+
+#검색 - 다중인덱스 검색
+POST movie_search,movie_dynamic/_search
+{
+  "query":{
+    "term":{
+      "typeNm":"단편"
+    }
+  }
+}
+
+#쿼리 결과 페이징
+#첫 번째 페이지
+POST movie_search/_search
+{
+  "from":0,
+  "size":5,
+  "query":{
+    "term":{
+      "repNationNm": "한국"
+    }
+  }
+}
+
+#두 번째 페이지
+POST movie_search/_search
+{
+  "from":5,
+  "size":5,
+  "query":{
+    "term":{
+      "repNationNm": "한국"
+    }
+  }
+}
+
+#쿼리 결과 정렬
+POST movie_search/_search
+{
+  "query":{
+    "term":{
+      "repNationNm": "한국"
+    }
+  },
+  "sort":{
+    "prdtYear":{
+      "order":"asc"
+    }
+  }
+}
+
+#결과 중 스코어 값이 같은 경우에는 두번째 정렬을 사용해 문서의 순위를 변경
+POST movie_search/_search
+{
+  "query":{
+    "term":{
+      "repNationNm": "한국"
+    }
+  },
+  "sort":{
+    "prdtYear":{
+      "order":"asc"
+    },
+    "openDt":{
+      "order":"desc"
+    }
+  }
+}
+
+#범위 검색
+POST movie_search/_search
+{
+  "query":{
+    "range":{
+      "prdtYear": {
+        "gte": 2016,
+        "lte": 2019
+      }
+    }
+  }
+}
+
+#operator 설정
+#operator 파라미터를 생략하면 OR 연산으로 동작해서 "함께"이라는 단어와 혹은 "죄와"이라는 단어가 들어있는 모든 문서가 검색됨(-은 무시됨)
+POST movie_search/_search
+{
+  "query":{
+    "match":{
+      "movieNm": {
+        "query":"함께-죄와"
+      }
+    }
+  }
+}
+
+POST movie_search/_search
+{
+  "query":{
+    "match":{
+      "movieNm": {
+        "query":"함께-죄와",
+        "operator":"and"
+      }
+    }
+  }
+}
+
+#minimum_should_match 설정
+#일반적으로 OR 연산을 수행할 경우 검색 결과가 너무 많아질 수 있다. 이 경우 텀의 개수(검색 가능한 단어의 수)가 몇개 이상 매치될 때만 검색 결과로나오게 할 수 있는데 이 때 사용하는 파라미터
+
+POST movie_search/_search
+{
+  "query":{
+    "match":{
+      "movieNm":{
+        "query":"신과 함께-죄와 벌",
+        "minimum_should_match": 3
+      }
+    }
+  }
+}
+
+#Multi Match Query
+POST movie_search/_search
+{
+  "query":{
+    "multi_match": {
+      "query": "도둑들",
+      "fields": ["movieNm","movieNmEn"]
+    }
+  }
+}
+
+#Bool Query
+#대표 장르가 코미디이고 제작 국가에 한국이 포함돼 있으며, 영화 타입 중 단편이 제외된 문서를 검색
+POST movie_search/_search
+{
+  "query":{
+    "bool":{
+      "must":[
+        {
+          "term":{
+            "repGenreNm": "코미디"
+          }
+        },
+        {
+          "match":{
+            "repNationNm": "한국"
+          }
+        }
+      ],
+      "must_not":[
+        {
+          "match":{
+            "typeNm":"단편"
+          }
+        }
+      ]
+    }
+  }
+}
+
+#Prefix Query는 해당 접두어가 있는 모든 문서를 검색
+POST movie_search/_search
+{
+  "query":{
+    "prefix":{
+      "movieNm": "신과"
+    }
+  }
+}
+
+#Wildcard Query
+#?(물음표):정확히 1개의 문자를 대체
+POST movie_search/_search
+{
+  "query":{
+    "wildcard": {
+      "typeNm": "장?"
+    }
+  }
+}
+
+# *(별표):0개 이상의 문자를 대체
+POST movie_search/_search
+{
+  "query":{
+    "wildcard": {
+      "movieNm":"극*"
+    }
+  }
+}
+
+#Count API
+
+POST movie_search/_count
+{
+  "query":{
+    "query_string":{
+      "default_field":"prdtYear",
+      "query":"2017"
+    }
+  }
+}
+
+#Validate API
+#Validate API는 쿼리 문법의 오류를 사전에 점검하거나, 쿼리 실행 시 어떤 문서가 일치하는지를 디버깅하고 확인하는데 유용한 도구
+POST movie_search/_validate/query?q=prdtYear:2017
+
+POST movie_search/_validate/query
+{
+  "query":{
+    "match":{
+      "prdtYear": "2017"
+    }
+  }
+}
+
+#쿼리가 왜 실패했는지 자세한 정보가 필요한 경우 요청 URL 파라미터로 rewrite=true 파라미터를 추가
+POST movie_search/_validate/query?rewrite=true
+{
+  "query":{
+    "match":{
+      "prdtYear": "2017-10-01"
+    }
+  }
+}
